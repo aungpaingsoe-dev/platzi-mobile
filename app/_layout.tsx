@@ -1,16 +1,13 @@
 import React from "react";
-import { Stack } from "expo-router";
+import { Slot } from "expo-router";
+import { Provider } from "react-redux";
+import { store } from "@/store";
 
 const RootLayout = () => {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="(auth)" />
-    </Stack>
+    <Provider store={store}>
+      <Slot />
+    </Provider>
   );
 };
 

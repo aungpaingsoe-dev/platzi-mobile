@@ -1,80 +1,119 @@
-import { Link } from "expo-router";
 import React from "react";
 import {
   View,
   Text,
   TextInput,
-  Image,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SignInInput, signInSchema } from "@/schema/auth/sign-in";
+import { useSignInMutation } from "@/store/api/auth";
 
 export default function SignIn() {
+  const [signIn, result] = useSignInMutation();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInInput>({
+    resolver: zodResolver(signInSchema),
+  });
+
+  const onSubmit = async (data: SignInInput) => {
+    signIn(data);
+    console.log(result);
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-      >
-        <View className="flex-1 justify-center px-8">
-          <View className="items-center mb-8">
-            <Image
-              source={require("../../assets/images/platzi_logo_icon_248838.png")}
-              className="w-24 h-24"
-              resizeMode="contain"
-            />
-          </View>
-
-          <View className="bg-white p-8 rounded-2xl shadow-md">
-            <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
-              Welcome Back
-            </Text>
-
-            <View className="mb-4">
-              <Text className="text-gray-700 mb-2 font-medium">Username</Text>
-              <TextInput
-                placeholder="Enter username"
-                className="py-3 px-4 bg-gray-50 text-gray-700 rounded-lg border border-gray-300 focus:border-blue-500"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View className="mb-6">
-              <Text className="text-gray-700 mb-2 font-medium">Password</Text>
-              <TextInput
-                placeholder="Enter password"
-                className="py-3 px-4 bg-gray-50 text-gray-700 rounded-lg border border-gray-300 focus:border-blue-500"
-                autoCapitalize="none"
-                secureTextEntry
-              />
-            </View>
-
-            <TouchableOpacity
-              className="bg-blue-500 py-3 rounded-lg items-center"
-              activeOpacity={0.8}
-            >
-              <Text className="text-white font-bold text-lg">Sign In</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="mt-4">
-              <Text className="text-blue-500 text-center">
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View className="mt-8">
-            <Text className="text-gray-600 text-center">
-              Don't have an account?
-              <Link href="/sign-up">
-                <Text className="text-blue-500 font-bold"> Sign Up</Text>
-              </Link>
-            </Text>
-          </View>
+    <SafeAreaView className="flex-1 bg-white">
+      <StatusBar style="dark" />
+      <View className="flex-1 justify-center px-8">
+        <View className="mb-8">
+          <Text className="text-4xl font-bold text-center text-primary">
+            Welcome Back
+          </Text>
+          <Text className="text-center text-gray-600 mt-2">
+            Sign in to your account
+          </Text>
         </View>
-      </KeyboardAvoidingView>
+
+        <View className="space-y-4">
+          <View>
+            <Text className="text-gray-700 ml-4 mb-2">Email</Text>
+            <Controller
+              name="email"
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  className="bg-gray-100 py-3 px-4 rounded-full"
+                  placeholder="Enter your email"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={value}
+                />
+              )}
+            />
+            {errors.email && (
+              <Text className="text-red-600 text-sm ml-4 mt-1">
+                {errors.email.message}
+              </Text>
+            )}
+          </View>
+
+          <View>
+            <Text className="text-gray-700 ml-4 mb-2">Password</Text>
+            <Controller
+              name="password"
+              rules={{ required: true }}
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  className="bg-gray-100 py-3 px-4 rounded-full"
+                  placeholder="Enter your password"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  secureTextEntry
+                />
+              )}
+            />
+            {errors.password && (
+              <Text className="text-red-600 text-sm ml-4 mt-1">
+                {errors.password.message}
+              </Text>
+            )}
+          </View>
+
+          <TouchableOpacity
+            className="bg-slate-700 py-3 rounded-full"
+            onPress={handleSubmit(onSubmit)}
+          >
+            <Text className="text-white text-center font-semibold">
+              Sign In
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity className="mt-4">
+          <Text className="text-primary text-center">Forgot Password?</Text>
+        </TouchableOpacity>
+
+        <View className="flex-row justify-center mt-8">
+          <Text className="text-gray-600">Don't have an account? </Text>
+          <TouchableOpacity>
+            <Text className="text-primary font-semibold">Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
