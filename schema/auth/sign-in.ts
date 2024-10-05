@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const signInSchema = z.object({
-  email: z
+  username: z
     .string({
-      invalid_type_error: "Invalid email address",
-      required_error: "Email is required",
+      invalid_type_error: "Invalid username address",
+      required_error: "Username is required",
     })
     .email(),
   password: z.string({
